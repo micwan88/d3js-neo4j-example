@@ -1,2 +1,2 @@
-# d3j-neo4j-example
-A d3j example for neo4j
+# d3js-neo4j-example
+A d3.js example for neo4j
