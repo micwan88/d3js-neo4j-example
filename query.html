@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="A d3js example for neo4j">
+  <meta name="author" content="Mic Wan">
+
+  <title>D3js Example for neo4j</title>
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/font-awesome.min.css">
+  <!-- Custom styles for this template -->
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col col-12 col-md-12 form-inline">
+        <input type="text" class="form-control form-control-sm" size="40px" id="cypher" placeholder="Cypher">
+        <button type="button" class="btn btn-outline-primary btn-sm" id="btnSend">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <hr/>
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col col-12 col-md-12">
+        <svg id="resultSvg">
+          <circle cx="40" cy="60" r="10"></circle>
+          <circle cx="80" cy="60" r="10"></circle>
+          <circle cx="120" cy="60" r="10"></circle>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="js/jquery-3.3.1.min.js"></script>
+  <script src="js/popper.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/d3.min.js"></script>
+</body>
+</html>
