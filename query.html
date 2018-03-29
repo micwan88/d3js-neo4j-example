@@ -45,5 +45,38 @@
   <script src="js/popper.min.js"></script>
   <script src="js/bootstrap.min.js"></script>
   <script src="js/d3.min.js"></script>
+  <script type="text/javascript">
+    "use strict";
+
+    var neo4jAPIURL = 'http://localhost:7474/db/data/transaction/commit';
+    var neo4jLogin = 'neo4j';
+    var neo4jPassword = 'password';
+
+    function neo4jLoginForAjax() {
+      $.ajaxSetup({
+        contentType: 'application/json',
+        beforeSend: function(xhr) {
+          xhr.setRequestHeader ("Authorization", "Basic " + btoa(neo4jLogin + ":" + neo4jPassword));
+        }
+      });
+    }
+
+    function submitQuery() {
+      var queryStr = $.trim($('#cypher').val());
+
+      var jqxhr = $.post(neo4jAPIURL, '{"statements":[{"statement":"' + queryStr + '", "resultDataContents":["graph"]}]}', 
+        function(data) {
+          //console.log(JSON.stringify(data));
+        }, 'json');
+
+      jqxhr.fail(function(data) {
+        alert('error !');
+      });
+    }
+
+    $(function() {
+      neo4jLoginForAjax();
+    });
+  </script>
 </body>
 </html>
