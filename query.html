@@ -30,7 +30,7 @@
 
   <div class="container-fluid">
     <div class="row">
-      <div class="col col-12 col-md-12">
+      <div class="col col-12 col-md-12" id="graphContainer">
         <svg id="resultSvg">
           <circle cx="40" cy="60" r="10"></circle>
           <circle cx="80" cy="60" r="10"></circle>
@@ -52,30 +52,65 @@
     var neo4jLogin = 'neo4j';
     var neo4jPassword = 'password';
 
+    function removeAlert() {
+      $('div.alert').remove();
+    }
+
+    function promptAlert(targetElement, msgText) {
+      removeAlert();
+
+      var alertDiv = $('<div class="alert alert-danger alert-dismissible fade show" role="alert"></div>');
+      var alertCloseBtn = $('<button type="button" class="close" data-dismiss="alert" aria-label="Close"></button>');
+      alertCloseBtn.append($('<i class="fa fa-times" aria-hidden="true"></i>'));
+      alertDiv.append(alertCloseBtn);
+
+      alertDiv.append(msgText);
+      targetElement.prepend(alertDiv);
+    }
+
     function neo4jLoginForAjax() {
       $.ajaxSetup({
         contentType: 'application/json',
         beforeSend: function(xhr) {
-          xhr.setRequestHeader ("Authorization", "Basic " + btoa(neo4jLogin + ":" + neo4jPassword));
+          xhr.setRequestHeader ('Authorization', 'Basic ' + btoa(neo4jLogin + ':' + neo4jPassword));
         }
       });
     }
 
     function submitQuery() {
+      removeAlert();
+
       var queryStr = $.trim($('#cypher').val());
+      if (queryStr == '') {
+        promptAlert($('#graphContainer'), 'Error: cypher cannot be empty !');
+        return;
+      }
 
       var jqxhr = $.post(neo4jAPIURL, '{"statements":[{"statement":"' + queryStr + '", "resultDataContents":["graph"]}]}', 
         function(data) {
-          //console.log(JSON.stringify(data));
+          console.log(JSON.stringify(data));
+          if (data.errors != null && data.errors.length > 0) {
+            promptAlert($('#graphContainer'), 'Error: ' + data.errors[0].message + '(' + data.errors[0].code + ')');
+            return;
+          }
         }, 'json');
 
       jqxhr.fail(function(data) {
-        alert('error !');
+        promptAlert($('#graphContainer'), 'Error: submit cypher but got error return (' + data + ')');
       });
     }
 
+    //Page Init
     $(function() {
       neo4jLoginForAjax();
+
+      $('#cypher').keyup(function(e) {
+        if(e.which == 13) {
+          submitQuery();
+        }
+      });
+
+      $('#btnSend').click(submitQuery);
     });
   </script>
 </body>
