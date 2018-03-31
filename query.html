@@ -32,9 +32,6 @@
     <div class="row">
       <div class="col col-12 col-md-12" id="graphContainer">
         <svg id="resultSvg">
-          <circle cx="40" cy="60" r="10"></circle>
-          <circle cx="80" cy="60" r="10"></circle>
-          <circle cx="120" cy="60" r="10"></circle>
         </svg>
       </div>
     </div>
@@ -52,14 +49,23 @@
     var neo4jLogin = 'neo4j';
     var neo4jPassword = 'password';
 
+    var nodeItemMap = new Map();
+    var linkItemMap = new Map();
+
     function removeAlert() {
       $('div.alert').remove();
     }
 
-    function promptAlert(targetElement, msgText) {
+    function promptAlert(targetElement, msgText, isError) {
       removeAlert();
 
-      var alertDiv = $('<div class="alert alert-danger alert-dismissible fade show" role="alert"></div>');
+      var alertType;
+      if (!isError)
+        alertType = 'info';
+      else
+        alertType = 'danger';
+
+      var alertDiv = $('<div class="alert alert-' + alertType + ' alert-dismissible fade show" role="alert"></div>');
       var alertCloseBtn = $('<button type="button" class="close" data-dismiss="alert" aria-label="Close"></button>');
       alertCloseBtn.append($('<i class="fa fa-times" aria-hidden="true"></i>'));
       alertDiv.append(alertCloseBtn);
@@ -78,11 +84,14 @@
     }
 
     function submitQuery() {
+      nodeItemMap.clear();
+      linkItemMap.clear();
+
       removeAlert();
 
       var queryStr = $.trim($('#cypher').val());
       if (queryStr == '') {
-        promptAlert($('#graphContainer'), 'Error: cypher cannot be empty !');
+        promptAlert($('#graphContainer'), 'Error: cypher cannot be empty !', true);
         return;
       }
 
@@ -90,13 +99,44 @@
         function(data) {
           console.log(JSON.stringify(data));
           if (data.errors != null && data.errors.length > 0) {
-            promptAlert($('#graphContainer'), 'Error: ' + data.errors[0].message + '(' + data.errors[0].code + ')');
+            promptAlert($('#graphContainer'), 'Error: ' + data.errors[0].message + '(' + data.errors[0].code + ')', true);
             return;
           }
+
+          if (data.results != null && data.results.length > 0 && data.results[0].data != null && data.results[0].data.length > 0) {
+            var neo4jDataItmArray = data.results[0].data;
+            neo4jDataItmArray.forEach(function(dataItem) {
+              //Node
+              if (dataItem.graph.nodes != null && dataItem.graph.nodes.length > 0) {
+                var neo4jNodeItmArray = dataItem.graph.nodes;
+                neo4jNodeItmArray.forEach(function(nodeItm) {
+                  if (!nodeItemMap.has(nodeItm.id))
+                    nodeItemMap.set(nodeItm.id, nodeItm);
+                });
+              }
+              //Link
+              if (dataItem.graph.relationships != null && dataItem.graph.relationships.length > 0) {
+                var neo4jLinkItmArray = dataItem.graph.relationships;
+                neo4jLinkItmArray.forEach(function(linkItm) {
+                  if (!linkItemMap.has(linkItm.id))
+                    linkItemMap.set(linkItm.id, linkItm);
+                });
+              }
+            });
+
+            console.log('nodeItemMap.size:' + nodeItemMap.size);
+            console.log('linkItemMap.size:' + linkItemMap.size);
+
+            var nodeArray = Array.from(nodeItemMap);
+            console.log(nodeArray);
+            return;
+          }
+
+          promptAlert($('#graphContainer'), 'No record found !', false);
         }, 'json');
 
       jqxhr.fail(function(data) {
-        promptAlert($('#graphContainer'), 'Error: submit cypher but got error return (' + data + ')');
+        promptAlert($('#graphContainer'), 'Error: submit cypher but got error return (' + data + ')', true);
       });
     }
 
