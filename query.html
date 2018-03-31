@@ -21,7 +21,9 @@
     <div class="row">
       <div class="col col-12 col-md-12 form-inline">
         <input type="text" class="form-control form-control-sm" size="40px" id="cypher" placeholder="Cypher">
-        <button type="button" class="btn btn-outline-primary btn-sm" id="btnSend">Send</button>
+        <button type="button" class="btn btn-outline-primary btn-sm" id="btnSend">
+          <i class="fa fa-check" aria-hidden="true"></i> Send&nbsp;
+        </button>
       </div>
     </div>
   </div>
@@ -31,8 +33,7 @@
   <div class="container-fluid">
     <div class="row">
       <div class="col col-12 col-md-12" id="graphContainer">
-        <svg id="resultSvg">
-        </svg>
+        <svg id="resultSvg"></svg>
       </div>
     </div>
   </div>
@@ -45,12 +46,17 @@
   <script type="text/javascript">
     "use strict";
 
+    var graphWidth = 1024;
+    var graphHeight = 500;
+
     var neo4jAPIURL = 'http://localhost:7474/db/data/transaction/commit';
     var neo4jLogin = 'neo4j';
     var neo4jPassword = 'password';
 
     var nodeItemMap = new Map();
     var linkItemMap = new Map();
+
+    var d3Force;
 
     function removeAlert() {
       $('div.alert').remove();
@@ -81,6 +87,58 @@
           xhr.setRequestHeader ('Authorization', 'Basic ' + btoa(neo4jLogin + ':' + neo4jPassword));
         }
       });
+    }
+
+    function initGraph() {
+      var svg = d3.select('#resultSvg');
+      var defs = svg.append('defs');
+
+      svg.attr("width", graphWidth)
+        .attr("height", graphHeight);
+
+      // define arrow markers for graph links
+      defs.append('marker')
+        .attr('id', 'end-arrow')
+        .attr('viewBox', '0 -5 10 10')
+        .attr('refX', 6)
+        .attr('markerWidth', 3)
+        .attr('markerHeight', 3)
+        .attr('orient', 'auto')
+        .append('path')
+        .attr('d', 'M0,-5L10,0L0,5')
+        .attr('fill', '#000');
+
+      defs.append('marker')
+        .attr('id', 'start-arrow')
+        .attr('viewBox', '0 -5 10 10')
+        .attr('refX', 4)
+        .attr('markerWidth', 3)
+        .attr('markerHeight', 3)
+        .attr('orient', 'auto')
+        .append('path')
+        .attr('d', 'M10,-5L0,0L10,5')
+        .attr('fill', '#000');
+
+      d3Force = d3.layout.force()
+        .nodes(Array.from(nodeItemMap))
+        .links(Array.from(linkItemMap))
+        .size([graphWidth, graphHeight])
+        .linkDistance(60)
+        .charge(-300);
+        .on('tick', tick);
+    }
+
+    function tick() {
+      circle.attr("transform", transform);
+      text.attr("transform", transform);
+    }
+
+    function transform(d) {
+      return "translate(" + d.x + "," + d.y + ")";
+    }
+
+    function plotGraph() {
+      
     }
 
     function submitQuery() {
@@ -143,6 +201,8 @@
     //Page Init
     $(function() {
       neo4jLoginForAjax();
+
+      initGraph();
 
       $('#cypher').keyup(function(e) {
         if(e.which == 13) {
