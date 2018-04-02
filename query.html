@@ -120,17 +120,15 @@
         .attr('fill', '#000');
 
       d3Force = d3.layout.force()
-        .nodes(Array.from(nodeItemMap))
-        .links(Array.from(linkItemMap))
         .size([graphWidth, graphHeight])
         .linkDistance(60)
-        .charge(-300);
+        .charge(-300)
         .on('tick', tick);
     }
 
     function tick() {
-      circle.attr("transform", transform);
-      text.attr("transform", transform);
+      //circle.attr("transform", transform);
+      //text.attr("transform", transform);
     }
 
     function transform(d) {
@@ -138,19 +136,26 @@
     }
 
     function plotGraph() {
-      
+      d3Force.stop();
+
+      d3Force.nodes(Array.from(nodeItemMap))
+        .links(Array.from(linkItemMap))
+
+      d3Force.start();
     }
 
-    function submitQuery() {
-      nodeItemMap.clear();
-      linkItemMap.clear();
-
+    function submitQuery(isUpdate) {
       removeAlert();
 
       var queryStr = $.trim($('#cypher').val());
       if (queryStr == '') {
         promptAlert($('#graphContainer'), 'Error: cypher cannot be empty !', true);
         return;
+      }
+
+      if (isUpdate == null || !isUpdate) {
+        nodeItemMap.clear();
+        linkItemMap.clear();
       }
 
       var jqxhr = $.post(neo4jAPIURL, '{"statements":[{"statement":"' + queryStr + '", "resultDataContents":["graph"]}]}', 
@@ -185,8 +190,7 @@
             console.log('nodeItemMap.size:' + nodeItemMap.size);
             console.log('linkItemMap.size:' + linkItemMap.size);
 
-            var nodeArray = Array.from(nodeItemMap);
-            console.log(nodeArray);
+            plotGraph();
             return;
           }
 
