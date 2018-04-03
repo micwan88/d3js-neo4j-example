@@ -5,3 +5,7 @@ body {
 #btnSend {
 	margin-left: 10px;
 }
+
+svg {
+	border: 1px dashed #CCCCCC;
+}
