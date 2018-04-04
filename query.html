@@ -46,7 +46,7 @@
   <script type="text/javascript">
     "use strict";
 
-    //const
+    //######################### const #########################
     var graphWidth = 1024;
     var graphHeight = 500;
 
@@ -54,7 +54,9 @@
     var neo4jLogin = 'neo4j';
     var neo4jPassword = 'password';
 
-    //var
+    var circleSize = 30;
+
+    //######################### variable #########################
     var nodeItemMap = new Map();
     var linkItemMap = new Map();
 
@@ -62,6 +64,9 @@
     var circles;
     var lines;
     var allText;
+
+    var itemColorMap = new Map();
+    var colorScale = d3.scaleOrdinal(d3.schemeSet2);
 
     function removeAlert() {
       $('div.alert').remove();
@@ -129,6 +134,13 @@
       svg.append('g').attr('id', 'text-group');
     }
 
+    function stopSimulation() {
+      if (d3Simulation != null) {
+        d3Simulation.stop()
+          .on('tick', null);
+      }
+    }
+
     function tick() {
       circles.attr('transform', transform);
       //text.attr('transform', transform);
@@ -153,7 +165,8 @@
       circles.exit().remove();
 
       circles = circles.enter().append('circle')
-        .attr('r', 30)
+        .attr('r', circleSize)
+        .attr('fill', getItemColor)
         .merge(circles);
 
       d3Simulation.on('tick', tick);
@@ -168,10 +181,7 @@
         return;
       }
 
-      if (d3Simulation != null) {
-        d3Simulation.stop()
-          .on('tick', null);
-      }
+      stopSimulation();
 
       if (isUpdate == null || !isUpdate) {
         nodeItemMap.clear();
@@ -220,6 +230,13 @@
       jqxhr.fail(function(data) {
         promptAlert($('#graphContainer'), 'Error: submit cypher but got error return (' + data + ')', true);
       });
+    }
+
+    function getItemColor(d) {
+      if (!itemColorMap.has(d[1].labels[0])) {
+        itemColorMap.set(d[1].labels[0], colorScale(d[1].labels[0]));
+      }
+      return itemColorMap.get(d[1].labels[0]);
     }
 
     //Page Init
