@@ -42,7 +42,7 @@
   <script src="js/jquery-3.3.1.min.js"></script>
   <script src="js/popper.min.js"></script>
   <script src="js/bootstrap.min.js"></script>
-  <script src="js/d3.min.js"></script>
+  <script src="js/d3.v5.min.js"></script>
   <script type="text/javascript">
     "use strict";
 
@@ -66,7 +66,12 @@
     var allText;
 
     var itemColorMap = new Map();
-    var colorScale = d3.scaleOrdinal(d3.schemeSet2);
+    var colorScale = d3.scaleOrdinal(d3.schemeSet3);
+
+    var drag_handler = d3.drag()
+      .on("start", drag_start)
+      .on("drag", drag_move)
+      .on("end", drag_end);
 
     function removeAlert() {
       $('div.alert').remove();
@@ -97,6 +102,25 @@
           xhr.setRequestHeader ('Authorization', 'Basic ' + btoa(neo4jLogin + ':' + neo4jPassword));
         }
       });
+    }
+
+    function drag_start(d) {
+      if (!d3.event.active && d3Simulation != null)
+        d3Simulation.alphaTarget(0.3).restart();
+      d.fx = d.x;
+      d.fy = d.y;
+    }
+
+    function drag_move(d) {
+      d.fx = d3.event.x;
+      d.fy = d3.event.y;
+    }
+
+    function drag_end(d) {
+      if (!d3.event.active && d3Simulation != null)
+        d3Simulation.alphaTarget(0);
+      d.fx = null;
+      d.fy = null;
     }
 
     function initGraph() {
@@ -138,6 +162,7 @@
       if (d3Simulation != null) {
         d3Simulation.stop()
           .on('tick', null);
+        d3Simulation = null;
       }
     }
 
@@ -153,20 +178,23 @@
 
     function plotGraph() {
       d3Simulation = d3.forceSimulation()
-        .force('chargeForce', d3.forceManyBody())//.strength(-300)
+        //.force('chargeForce', d3.forceManyBody())//.strength(-300)
+        .force('collideForce', d3.forceCollide(circleSize * 1.2))
         .force('centerForce', d3.forceCenter(graphWidth / 2, graphHeight / 2))
         //.force('linkForce', d3.forceLink().distance(60))
         .nodes(Array.from(nodeItemMap));
         //.force('linkForce').links(Array.from(linkItemMap));
 
       circles = d3.select('#circle-group').selectAll('circle')
-        .data(d3Simulation.nodes(), function(d) {return d.id});
+        .data(d3Simulation.nodes(), function(d) {return d.id;});
 
       circles.exit().remove();
 
       circles = circles.enter().append('circle')
         .attr('r', circleSize)
         .attr('fill', getItemColor)
+        .attr('stroke', getItemStrokeColor)
+        .call(drag_handler)
         .merge(circles);
 
       d3Simulation.on('tick', tick);
@@ -237,6 +265,10 @@
         itemColorMap.set(d[1].labels[0], colorScale(d[1].labels[0]));
       }
       return itemColorMap.get(d[1].labels[0]);
+    }
+
+    function getItemStrokeColor(d) {
+      return d3.rgb(getItemColor(d)).darker().toString();
     }
 
     //Page Init

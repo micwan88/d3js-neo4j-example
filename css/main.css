@@ -9,3 +9,8 @@ body {
 svg {
 	border: 1px dashed #CCCCCC;
 }
+
+circle {
+	cursor: pointer;
+	stroke-width: 1.5px;
+}
