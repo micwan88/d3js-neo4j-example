@@ -55,6 +55,7 @@
     var neo4jPassword = 'password';
 
     var circleSize = 30;
+    var textPosOffsetY = 5;
 
     //######################### variable #########################
     var nodeItemMap = {};
@@ -63,7 +64,7 @@
     var d3Simulation = null;
     var circles;
     var lines;
-    var allText;
+    var nameText;
 
     var itemColorMap = {};
     var colorScale = d3.scaleOrdinal(d3.schemeSet3);
@@ -183,7 +184,7 @@
 
     function tick() {
       circles.attr('transform', transform);
-      //text.attr('transform', transform);
+      nameText.attr('transform', transform);
     }
 
     function transform(d) {
@@ -192,19 +193,24 @@
     }
 
     function updateGraph() {
+      var d3LinkForce = d3.forceLink().distance(60).links(mapToArray(linkItemMap));
+
       d3Simulation = d3.forceSimulation()
         //.force('chargeForce', d3.forceManyBody())//.strength(-300)
         .force('collideForce', d3.forceCollide(circleSize * 1.2))
         .force('centerForce', d3.forceCenter(graphWidth / 2, graphHeight / 2))
-        //.force('linkForce', d3.forceLink().distance(60))
         .nodes(mapToArray(nodeItemMap));
+        //.force('linkForce', d3LinkForce);
         //.force('linkForce').links(Array.from(linkItemMap));
 
       circles = d3.select('#circle-group').selectAll('circle')
         .data(d3Simulation.nodes(), function(d) {return d.id;});
+      nameText = d3.select('#text-group').selectAll('text')
+        .data(d3Simulation.nodes(), function(d) {return d.id;});
+      lines = d3.select('#path-group').selectAll('path')
+        .data(d3LinkForce.links(), function(d) {return d.id;});
 
       circles.exit().remove();
-
       circles = circles.enter().append('circle')
         .attr('r', circleSize)
         .attr('fill', getItemColor)
@@ -221,6 +227,15 @@
             .attr('stroke', function(d) {return getColorDarker(getItemColor(d));});
         })
         .merge(circles);
+
+      nameText.exit().remove();
+      nameText = nameText.enter().append('text')
+        .attr('y', textPosOffsetY)
+        .attr('text-anchor', 'middle')
+        .text(function(d) {return d.properties.name;})
+        .merge(nameText);
+
+      lines.exit().remove();
 
       d3Simulation.on('tick', tick);
     }
