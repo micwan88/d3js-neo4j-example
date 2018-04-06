@@ -57,6 +57,9 @@
     var circleSize = 30;
     var textPosOffsetY = 5;
 
+    var collideForceSize = circleSize * 1.5;
+    var linkForceSize = 30;
+
     //######################### variable #########################
     var nodeItemMap = {};
     var linkItemMap = {};
@@ -67,7 +70,7 @@
     var nameText;
 
     var itemColorMap = {};
-    var colorScale = d3.scaleOrdinal(d3.schemeSet3);
+    var colorScale = d3.scaleOrdinal(d3.schemePaired);
 
     var drag_handler = d3.drag()
       .on('start', drag_start)
@@ -75,6 +78,10 @@
       .on('end', drag_end);
 
     var zoom_handler = d3.zoom()
+      .filter(function() {
+        console.log(d3.event);
+        return d3.event.type == 'wheel';
+      })
       .on('zoom', zoom_actions);
 
     function mapToArray(targetMapObj) {
@@ -168,8 +175,8 @@
         .attr('fill', '#000');
 
       svg.append('g').attr('id', 'circle-group');
-      svg.append('g').attr('id', 'path-group');
       svg.append('g').attr('id', 'text-group');
+      svg.append('g').attr('id', 'path-group');
 
       zoom_handler(svg);
     }
@@ -183,6 +190,7 @@
     }
 
     function tick() {
+      lines.attr('d', drawLine);
       circles.attr('transform', transform);
       nameText.attr('transform', transform);
     }
@@ -192,15 +200,22 @@
       return 'translate(' + d.x + ',' + d.y + ')';
     }
 
+    function drawLine(d) {
+      return 'M' + d.source.x + ' ' + d.source.y + ' L' + d.target.x + ' ' + d.target.y;
+    }
+
     function updateGraph() {
-      var d3LinkForce = d3.forceLink().distance(60).links(mapToArray(linkItemMap));
+      var d3LinkForce = d3.forceLink()
+        .distance(linkForceSize)
+        .links(mapToArray(linkItemMap))
+        .id(function(d) {return d.id;});
 
       d3Simulation = d3.forceSimulation()
         //.force('chargeForce', d3.forceManyBody())//.strength(-300)
-        .force('collideForce', d3.forceCollide(circleSize * 1.2))
+        .force('collideForce', d3.forceCollide(collideForceSize))
         .force('centerForce', d3.forceCenter(graphWidth / 2, graphHeight / 2))
-        .nodes(mapToArray(nodeItemMap));
-        //.force('linkForce', d3LinkForce);
+        .nodes(mapToArray(nodeItemMap))
+        .force('linkForce', d3LinkForce);
         //.force('linkForce').links(Array.from(linkItemMap));
 
       circles = d3.select('#circle-group').selectAll('circle')
@@ -226,6 +241,9 @@
             .attr('fill', getItemColor)
             .attr('stroke', function(d) {return getColorDarker(getItemColor(d));});
         })
+        .on('dblclick', function(d) {
+          console.log(d);
+        })
         .merge(circles);
 
       nameText.exit().remove();
@@ -236,6 +254,8 @@
         .merge(nameText);
 
       lines.exit().remove();
+      lines = lines.enter().append('path')
+        .merge(lines);
 
       d3Simulation.on('tick', tick);
     }
@@ -279,8 +299,11 @@
               if (dataItem.graph.relationships != null && dataItem.graph.relationships.length > 0) {
                 var neo4jLinkItmArray = dataItem.graph.relationships;
                 neo4jLinkItmArray.forEach(function(linkItm) {
-                  if (!(linkItm.id in linkItemMap))
+                  if (!(linkItm.id in linkItemMap)) {
+                    linkItm.source = linkItm.startNode;
+                    linkItm.target = linkItm.endNode;
                     linkItemMap[linkItm.id] = linkItm;
+                  }
                 });
               }
             });
@@ -309,7 +332,7 @@
     }
 
     function getColorBrighter(targetColor) {
-      return d3.rgb(targetColor).brighter().toString();
+      return d3.rgb(targetColor).brighter(0.3).toString();
     }
 
     function getColorDarker(targetColor) {
