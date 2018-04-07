@@ -269,6 +269,7 @@
 
       lines.exit().remove();
       lines = lines.enter().append('path')
+        .attr('marker-end', 'url(#end-arrow)')
         .merge(lines);
 
       d3Simulation
