@@ -79,8 +79,8 @@
 
     var zoom_handler = d3.zoom()
       .filter(function() {
-        console.log(d3.event);
-        return d3.event.type == 'wheel';
+        //Only enable wheel zoom and mousedown to pan
+        return (d3.event.type == 'wheel' | d3.event.type == 'mousedown');
       })
       .on('zoom', zoom_actions);
 
@@ -119,6 +119,18 @@
           xhr.setRequestHeader ('Authorization', 'Basic ' + btoa(neo4jLogin + ':' + neo4jPassword));
         }
       });
+    }
+
+    function unfreezeItms() {
+      var nodeItmArray = d3Simulation.nodes();
+      if (nodeItmArray != null) {
+        nodeItmArray.forEach(function(nodeItm) {
+          if (nodeItm.fx != null) {
+            nodeItm.fx = null;
+            nodeItm.fy = null;
+          }
+        });
+      }
     }
 
     function drag_start(d) {
@@ -242,7 +254,9 @@
             .attr('stroke', function(d) {return getColorDarker(getItemColor(d));});
         })
         .on('dblclick', function(d) {
-          console.log(d);
+          d.fx = d.x;
+          d.fy = d.y;
+          submitQuery(d.id);
         })
         .merge(circles);
 
@@ -257,21 +271,29 @@
       lines = lines.enter().append('path')
         .merge(lines);
 
-      d3Simulation.on('tick', tick);
+      d3Simulation
+        .on('tick', tick)
+        .on('end', function() {
+          unfreezeItms();
+        });
     }
 
-    function submitQuery(isUpdate) {
+    function submitQuery(nodeID) {
       removeAlert();
 
-      var queryStr = $.trim($('#cypher').val());
-      if (queryStr == '') {
-        promptAlert($('#graphContainer'), 'Error: cypher cannot be empty !', true);
-        return;
-      }
+      var queryStr = null;
+      if (nodeID == null || !nodeID) {
+        queryStr = $.trim($('#cypher').val());
+        if (queryStr == '') {
+          promptAlert($('#graphContainer'), 'Error: cypher cannot be empty !', true);
+          return;
+        }
+      } else
+        queryStr = 'match (n)-[j]-(k) where id(n) = ' + nodeID + ' return n,j,k';
 
       stopSimulation();
 
-      if (isUpdate == null || !isUpdate) {
+      if (nodeID == null || !nodeID) {
         nodeItemMap = {};
         linkItemMap = {};
       }
