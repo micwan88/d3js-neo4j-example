@@ -6,6 +6,11 @@ body {
 	margin-left: 10px;
 }
 
+#propertiesBox {
+	overflow: auto;
+	height: 50px;
+}
+
 svg {
 	border: 1px dashed #CCCCCC;
 }
@@ -22,6 +27,7 @@ text {
 }
 
 path {
-	stroke: #787676;
+	fill: #403E3E;
+	stroke: #403E3E;
 	stroke-width: 1.5px;
 }

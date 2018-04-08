@@ -36,6 +36,12 @@
         <svg id="resultSvg"></svg>
       </div>
     </div>
+    <div class="row">
+      <div class="col col-12 col-md-12">
+        <div id="propertiesBox">
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -48,7 +54,7 @@
 
     //######################### const #########################
     var graphWidth = 1024;
-    var graphHeight = 500;
+    var graphHeight = 450;
 
     var neo4jAPIURL = 'http://localhost:7474/db/data/transaction/commit';
     var neo4jLogin = 'neo4j';
@@ -58,7 +64,7 @@
     var textPosOffsetY = 5;
 
     var collideForceSize = circleSize * 1.5;
-    var linkForceSize = 30;
+    var linkForceSize = 60;
 
     //######################### variable #########################
     var nodeItemMap = {};
@@ -70,7 +76,7 @@
     var nameText;
 
     var itemColorMap = {};
-    var colorScale = d3.scaleOrdinal(d3.schemePaired);
+    var colorScale = d3.scaleOrdinal(d3.schemeSet2);
 
     var drag_handler = d3.drag()
       .on('start', drag_start)
@@ -148,8 +154,8 @@
     function drag_end(d) {
       if (!d3.event.active && d3Simulation != null)
         d3Simulation.alphaTarget(0);
-      d.fx = null;
-      d.fy = null;
+      //d.fx = null;
+      //d.fy = null;
     }
 
     function zoom_actions(){
@@ -167,24 +173,12 @@
       defs.append('marker')
         .attr('id', 'end-arrow')
         .attr('viewBox', '0 -5 10 10')
-        .attr('refX', 6)
-        .attr('markerWidth', 3)
-        .attr('markerHeight', 3)
+        .attr('refX', 10)
+        .attr('markerWidth', 5)
+        .attr('markerHeight', 5)
         .attr('orient', 'auto')
         .append('path')
-        .attr('d', 'M0,-5L10,0L0,5')
-        .attr('fill', '#000');
-
-      defs.append('marker')
-        .attr('id', 'start-arrow')
-        .attr('viewBox', '0 -5 10 10')
-        .attr('refX', 4)
-        .attr('markerWidth', 3)
-        .attr('markerHeight', 3)
-        .attr('orient', 'auto')
-        .append('path')
-        .attr('d', 'M10,-5L0,0L10,5')
-        .attr('fill', '#000');
+        .attr('d', 'M0,-5L10,0L0,5');
 
       svg.append('g').attr('id', 'circle-group');
       svg.append('g').attr('id', 'text-group');
@@ -213,7 +207,19 @@
     }
 
     function drawLine(d) {
-      return 'M' + d.source.x + ' ' + d.source.y + ' L' + d.target.x + ' ' + d.target.y;
+      var deltaX, deltaY, dist, normX, normY, sourceX, sourceY, targetX, targetY;
+      
+      deltaX = d.target.x - d.source.x;
+      deltaY = d.target.y - d.source.y;
+      dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      normX = deltaX / dist;
+      normY = deltaY / dist;
+      sourceX = d.source.x + (circleSize * normX);
+      sourceY = d.source.y + (circleSize * normY);
+      targetX = d.target.x - (circleSize * normX),
+      targetY = d.target.y - (circleSize * normY);
+
+      return 'M' + sourceX + ' ' + sourceY + ' L' + targetX + ' ' + targetY;
     }
 
     function updateGraph() {
@@ -228,7 +234,6 @@
         .force('centerForce', d3.forceCenter(graphWidth / 2, graphHeight / 2))
         .nodes(mapToArray(nodeItemMap))
         .force('linkForce', d3LinkForce);
-        //.force('linkForce').links(Array.from(linkItemMap));
 
       circles = d3.select('#circle-group').selectAll('circle')
         .data(d3Simulation.nodes(), function(d) {return d.id;});
