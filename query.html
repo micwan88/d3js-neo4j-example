@@ -20,10 +20,12 @@
   <div class="container-fluid">
     <div class="row">
       <div class="col col-12 col-md-12 form-inline">
-        <input type="text" class="form-control form-control-sm" size="40px" id="cypher" placeholder="Cypher">
+        <input type="text" class="form-control form-control-sm" size="40px" id="queryText" placeholder="Node Name" />
         <button type="button" class="btn btn-outline-primary btn-sm" id="btnSend">
           <i class="fa fa-check" aria-hidden="true"></i> Send&nbsp;
-        </button>
+        </button> &nbsp;
+        <input class="form-check-input" type="checkbox" id="chkboxCypherQry" value="1" />
+        <label class="form-check-label" for="chkboxCypherQry">Use Cypher Query</label>
       </div>
     </div>
   </div>
@@ -326,11 +328,13 @@
 
       var queryStr = null;
       if (nodeID == null || !nodeID) {
-        queryStr = $.trim($('#cypher').val());
+        queryStr = $.trim($('#queryText').val());
         if (queryStr == '') {
-          promptAlert($('#graphContainer'), 'Error: cypher cannot be empty !', true);
+          promptAlert($('#graphContainer'), 'Error: query text cannot be empty !', true);
           return;
         }
+        if ($('#chkboxCypherQry:checked').val() != 1)
+          queryStr = 'match (n) where n.name =~ \'(?i).*' + queryStr + '.*\' return n';
       } else
         queryStr = 'match (n)-[j]-(k) where id(n) = ' + nodeID + ' return n,j,k';
 
@@ -386,7 +390,7 @@
         }, 'json');
 
       jqxhr.fail(function(data) {
-        promptAlert($('#graphContainer'), 'Error: submit cypher but got error return (' + data + ')', true);
+        promptAlert($('#graphContainer'), 'Error: submitted query text but got error return (' + data + ')', true);
       });
     }
 
@@ -410,13 +414,20 @@
 
       initGraph();
 
-      $('#cypher').keyup(function(e) {
+      $('#queryText').keyup(function(e) {
         if(e.which == 13) {
           submitQuery();
         }
       });
 
       $('#btnSend').click(function() {submitQuery()});
+
+      $('#chkboxCypherQry').change(function() {
+        if (this.checked)
+          $('#queryText').prop('placeholder', 'Cypher');
+        else
+          $('#queryText').prop('placeholder', 'Node Name');
+      });
     });
   </script>
 </body>
