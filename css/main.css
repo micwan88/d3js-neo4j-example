@@ -8,7 +8,9 @@ body {
 
 #propertiesBox {
 	overflow: auto;
-	height: 50px;
+	height: 100px;
+	width: 1024px;
+	border: 1px solid #CCCCCC;
 }
 
 svg {
@@ -21,9 +23,9 @@ circle {
 }
 
 text {
-	font: 10px sans-serif;
+	font: 10px arial;
 	pointer-events: none;
-  	text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+  	/*text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;*/
 }
 
 path {

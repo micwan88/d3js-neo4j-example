@@ -72,8 +72,9 @@
 
     var d3Simulation = null;
     var circles;
+    var circleText;
     var lines;
-    var nameText;
+    var lineText;
 
     var itemColorMap = {};
     var colorScale = d3.scaleOrdinal(d3.schemeSet2);
@@ -183,6 +184,7 @@
       svg.append('g').attr('id', 'circle-group');
       svg.append('g').attr('id', 'text-group');
       svg.append('g').attr('id', 'path-group');
+      svg.append('g').attr('id', 'path-label-group');
 
       zoom_handler(svg);
     }
@@ -197,8 +199,15 @@
 
     function tick() {
       lines.attr('d', drawLine);
+      lineText.attr('transform', transformPathLabel);
       circles.attr('transform', transform);
-      nameText.attr('transform', transform);
+      circleText.attr('transform', transform);
+    }
+
+    function transformPathLabel(d) {
+      var sourceX = d.source.x + ((d.target.x - d.source.x) / 2);
+      var sourceY = d.source.y + ((d.target.y - d.source.y) / 2);
+      return 'translate(' + sourceX + ',' + sourceY + ')';
     }
 
     function transform(d) {
@@ -222,6 +231,21 @@
       return 'M' + sourceX + ' ' + sourceY + ' L' + targetX + ' ' + targetY;
     }
 
+    function clearProperties() {
+      $('#propertiesBox').empty();
+    }
+
+    function showProperties(d) {
+      clearProperties();
+
+      var propertiesText = 'id: ' + d.id;
+      $.map(d.properties, function(value, key) {
+        propertiesText += ', ' + key + ': ' + value;
+      });
+
+      $('#propertiesBox').append($('<p></p>').text(propertiesText));
+    }
+
     function updateGraph() {
       var d3LinkForce = d3.forceLink()
         .distance(linkForceSize)
@@ -237,9 +261,11 @@
 
       circles = d3.select('#circle-group').selectAll('circle')
         .data(d3Simulation.nodes(), function(d) {return d.id;});
-      nameText = d3.select('#text-group').selectAll('text')
+      circleText = d3.select('#text-group').selectAll('text')
         .data(d3Simulation.nodes(), function(d) {return d.id;});
       lines = d3.select('#path-group').selectAll('path')
+        .data(d3LinkForce.links(), function(d) {return d.id;});
+      lineText = d3.select('#path-label-group').selectAll('text')
         .data(d3LinkForce.links(), function(d) {return d.id;});
 
       circles.exit().remove();
@@ -252,6 +278,7 @@
           d3.select(this)
             .attr('fill', function(d) {return getColorBrighter(getItemColor(d));})
             .attr('stroke', getItemColor);
+          showProperties(d);
         })
         .on('mouseout', function(d) {
           d3.select(this)
@@ -265,17 +292,27 @@
         })
         .merge(circles);
 
-      nameText.exit().remove();
-      nameText = nameText.enter().append('text')
+      circleText.exit().remove();
+      circleText = circleText.enter().append('text')
         .attr('y', textPosOffsetY)
         .attr('text-anchor', 'middle')
         .text(function(d) {return d.properties.name;})
-        .merge(nameText);
+        .merge(circleText);
 
       lines.exit().remove();
       lines = lines.enter().append('path')
         .attr('marker-end', 'url(#end-arrow)')
+        .on('mouseover', function(d) {
+          showProperties(d);
+        })
         .merge(lines);
+
+      lineText.exit().remove();
+      lineText = lineText.enter().append('text')
+        .attr('y', textPosOffsetY)
+        .attr('text-anchor', 'middle')
+        .text(function(d) {return d.type;})
+        .merge(lineText);
 
       d3Simulation
         .on('tick', tick)
