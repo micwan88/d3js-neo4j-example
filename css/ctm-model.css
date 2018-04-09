@@ -1,35 +1,9 @@
-body {
-	padding-top: 15px;
+circle.Condition {
+	fill: red;
 }
 
-#btnSend {
-	margin-left: 10px;
-}
-
-#propertiesBox {
-	overflow: auto;
-	height: 100px;
-	width: 1024px;
-	border: 1px solid #CCCCCC;
-}
-
-svg {
-	border: 1px dashed #CCCCCC;
-}
-
-circle {
-	cursor: pointer;
-	stroke-width: 1.5px;
-}
-
-text {
-	font: 10px arial;
-	pointer-events: none;
-  	/*text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;*/
-}
-
-path {
-	fill: #403E3E;
-	stroke: #403E3E;
+path.OUT_SUB {
+	fill: blue;
+	stroke: blue;
 	stroke-width: 1.5px;
 }

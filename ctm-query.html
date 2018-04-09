@@ -276,6 +276,7 @@
         .attr('r', circleSize)
         .attr('fill', getItemColor)
         .attr('stroke', function(d) {return getColorDarker(getItemColor(d));})
+        .attr('class', function(d) {return d.labels.join('-');})
         .call(drag_handler)
         .on('mouseover', function(d) {
           d3.select(this)
@@ -305,6 +306,7 @@
       lines.exit().remove();
       lines = lines.enter().append('path')
         .attr('marker-end', 'url(#end-arrow)')
+        .attr('class', function(d) {return d.type;})
         .on('mouseover', function(d) {
           showProperties(d);
         })
