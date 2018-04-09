@@ -51,6 +51,7 @@
   <script src="js/popper.min.js"></script>
   <script src="js/bootstrap.min.js"></script>
   <script src="js/d3.v5.min.js"></script>
+  <script src="js/d3js-example-neo4j.js"></script>
   <script type="text/javascript">
     "use strict";
 
@@ -92,43 +93,6 @@
         return (d3.event.type == 'wheel' | d3.event.type == 'mousedown');
       })
       .on('zoom', zoom_actions);
-
-    function mapToArray(targetMapObj) {
-      return $.map(targetMapObj, function(value, index) {
-        return [value];
-      });
-    }
-
-    function removeAlert() {
-      $('div.alert').remove();
-    }
-
-    function promptAlert(targetElement, msgText, isError) {
-      removeAlert();
-
-      var alertType;
-      if (!isError)
-        alertType = 'info';
-      else
-        alertType = 'danger';
-
-      var alertDiv = $('<div class="alert alert-' + alertType + ' alert-dismissible fade show" role="alert"></div>');
-      var alertCloseBtn = $('<button type="button" class="close" data-dismiss="alert" aria-label="Close"></button>');
-      alertCloseBtn.append($('<i class="fa fa-times" aria-hidden="true"></i>'));
-      alertDiv.append(alertCloseBtn);
-
-      alertDiv.append(msgText);
-      targetElement.prepend(alertDiv);
-    }
-
-    function neo4jLoginForAjax() {
-      $.ajaxSetup({
-        contentType: 'application/json',
-        beforeSend: function(xhr) {
-          xhr.setRequestHeader ('Authorization', 'Basic ' + btoa(neo4jLogin + ':' + neo4jPassword));
-        }
-      });
-    }
 
     function unfreezeItms() {
       var nodeItmArray = d3Simulation.nodes();
@@ -241,6 +205,13 @@
       clearProperties();
 
       var propertiesText = 'id: ' + d.id;
+      //For nodes
+      if (d.labels != null)
+        propertiesText += ', labels: ' + d.labels.join(', ');
+      //For links
+      if (d.type != null)
+        propertiesText += ', type: ' + d.type;
+
       $.map(d.properties, function(value, key) {
         propertiesText += ', ' + key + ': ' + value;
       });
@@ -410,7 +381,7 @@
 
     //Page Init
     $(function() {
-      neo4jLoginForAjax();
+      setupNeo4jLoginForAjax(neo4jLogin, neo4jPassword);
 
       initGraph();
 

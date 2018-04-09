@@ -1,9 +1,29 @@
 circle.Condition {
-	fill: red;
+	fill: #F1948A;
+	stroke: #EC7063;
+}
+
+circle.Condition:hover {
+	fill: #FADBD8;
+	stroke: #F1948A;
+}
+
+circle.Job {
+	fill: #85C1E9;
+	stroke: #5DADE2;
+}
+
+circle.Job:hover {
+	fill: #AED6F1;
+	stroke: #85C1E9;	
 }
 
 path.OUT_SUB {
 	fill: blue;
 	stroke: blue;
 	stroke-width: 1.5px;
+}
+
+text {
+	text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
 }
