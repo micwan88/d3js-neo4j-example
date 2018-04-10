@@ -9,19 +9,35 @@ circle.Condition:hover {
 }
 
 circle.Job {
+	fill: #82E0AA;
+	stroke: #58D68D;
+}
+
+circle.Job:hover {
+	fill: #ABEBC6;
+	stroke: #82E0AA;
+}
+
+circle.Folder {
 	fill: #85C1E9;
 	stroke: #5DADE2;
 }
 
-circle.Job:hover {
+circle.Folder:hover {
 	fill: #AED6F1;
-	stroke: #85C1E9;	
+	stroke: #85C1E9;
 }
 
 path.OUT_SUB {
-	fill: blue;
-	stroke: blue;
+	fill: #C0392B;
+	stroke: #C0392B;
 	stroke-width: 1.5px;
+	stroke-dasharray: 5,5;
+}
+
+path {
+	fill: #1B2631;
+	stroke: #1B2631;
 }
 
 text {

@@ -245,20 +245,11 @@
       circles.exit().remove();
       circles = circles.enter().append('circle')
         .attr('r', circleSize)
-        .attr('fill', getItemColor)
-        .attr('stroke', function(d) {return getColorDarker(getItemColor(d));})
+        .attr('title', function(d) {return d.labels.join('-');})
         .attr('class', function(d) {return d.labels.join('-');})
         .call(drag_handler)
         .on('mouseover', function(d) {
-          d3.select(this)
-            .attr('fill', function(d) {return getColorBrighter(getItemColor(d));})
-            .attr('stroke', getItemColor);
           showProperties(d);
-        })
-        .on('mouseout', function(d) {
-          d3.select(this)
-            .attr('fill', getItemColor)
-            .attr('stroke', function(d) {return getColorDarker(getItemColor(d));});
         })
         .on('dblclick', function(d) {
           d.fx = d.x;
@@ -277,6 +268,7 @@
       lines.exit().remove();
       lines = lines.enter().append('path')
         .attr('marker-end', 'url(#end-arrow)')
+        .attr('title', function(d) {return d.type;})
         .attr('class', function(d) {return d.type;})
         .on('mouseover', function(d) {
           showProperties(d);
@@ -366,20 +358,6 @@
       jqxhr.fail(function(data) {
         promptAlert($('#graphContainer'), 'Error: submitted query text but got error return (' + data + ')', true);
       });
-    }
-
-    function getItemColor(d) {
-      if (!(d.labels[0] in itemColorMap))
-        itemColorMap[d.labels[0]] = colorScale(d.labels[0]);
-      return itemColorMap[d.labels[0]];
-    }
-
-    function getColorBrighter(targetColor) {
-      return d3.rgb(targetColor).brighter(0.3).toString();
-    }
-
-    function getColorDarker(targetColor) {
-      return d3.rgb(targetColor).darker().toString();
     }
 
     //Page Init
