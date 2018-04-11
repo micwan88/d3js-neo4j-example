@@ -18,6 +18,16 @@ circle.Job:hover {
 	stroke: #82E0AA;
 }
 
+circle.Cyclic.Job {
+	fill: #C39BD3;
+	stroke: #AF7AC5;
+}
+
+circle.Cyclic.Job:hover {
+	fill: #D7BDE2;
+	stroke: #C39BD3;
+}
+
 circle.Folder {
 	fill: #85C1E9;
 	stroke: #5DADE2;

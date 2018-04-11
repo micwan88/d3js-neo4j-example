@@ -70,6 +70,8 @@
     var collideForceSize = circleSize * 1.5;
     var linkForceSize = 100;
 
+    var linkTypeMapping = {'OUT_ADD': '+', 'OUT_SUB': '-', 'IN_AND': 'AND', 'IN_OR': 'OR'};
+
     //######################### variable #########################
     var nodeItemMap = {};
     var linkItemMap = {};
@@ -220,6 +222,19 @@
       $('#propertiesBox').append($('<p></p>').text(propertiesText));
     }
 
+    function replaceLinkTypeName(d) {
+      var linkTypeName = linkTypeMapping[d.type];
+      if (linkTypeName == null)
+        return d.type;
+      return linkTypeName;
+    }
+
+    function generateCircleClasses(d) {
+      if (d.properties != null && d.properties.cyclic == '1')
+        return 'Cyclic ' + d.labels.join(' ');
+      return d.labels.join(' ');
+    }
+
     function updateGraph() {
       var d3LinkForce = d3.forceLink()
         .distance(linkForceSize)
@@ -246,7 +261,7 @@
       circles = circles.enter().append('circle')
         .attr('r', circleSize)
         .attr('title', function(d) {return d.labels.join('-');})
-        .attr('class', function(d) {return d.labels.join('-');})
+        .attr('class', function(d) {return generateCircleClasses(d);})
         .call(drag_handler)
         .on('mouseover', function(d) {
           showProperties(d);
@@ -279,7 +294,7 @@
       lineText = lineText.enter().append('text')
         .attr('y', textPosOffsetY)
         .attr('text-anchor', 'middle')
-        .text(function(d) {return d.type;})
+        .text(function(d) {return replaceLinkTypeName(d);})
         .merge(lineText);
 
       d3Simulation
