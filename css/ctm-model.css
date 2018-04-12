@@ -50,6 +50,12 @@ path {
 	stroke: #1B2631;
 }
 
+path.lockIcon {
+	cursor: pointer;
+	stroke-width: 1px;
+	fill: #1B2631;
+}
+
 text {
 	text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
 }
