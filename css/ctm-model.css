@@ -63,7 +63,8 @@ g.lockIcon path.overlay {
 	fill: white;
 	cursor: pointer;
 	stroke: #1B2631;
-	stroke-width: 3px;
+	stroke-width: 1px;
+	stroke-dasharray: 2,2;
 }
 
 text {
