@@ -74,6 +74,8 @@
 
     var lockIconSVG = 'M12 17c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm6-9h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6h1.9c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm0 12H6V10h12v10z';
 
+    var boxSVG = 'M-2 -2 L25 -2 L25 25 L-2 25 Z';
+
     //######################### variable #########################
     var nodeItemMap = {};
     var linkItemMap = {};
@@ -151,6 +153,8 @@
         .attr('markerWidth', 5)
         .attr('markerHeight', 5)
         .attr('orient', 'auto')
+        .attr('stoke', 'none')
+        .attr('fill', 'black')
         .append('path')
         .attr('d', 'M0,-5L10,0L0,5');
 
@@ -199,17 +203,17 @@
     }
 
     function drawLine(d) {
-      var deltaX, deltaY, dist, normX, normY, sourceX, sourceY, targetX, targetY;
+      var deltaX, deltaY, dist, cosTheta, sinTheta, sourceX, sourceY, targetX, targetY;
       
       deltaX = d.target.x - d.source.x;
       deltaY = d.target.y - d.source.y;
       dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-      normX = deltaX / dist;
-      normY = deltaY / dist;
-      sourceX = d.source.x + (circleSize * normX);
-      sourceY = d.source.y + (circleSize * normY);
-      targetX = d.target.x - (circleSize * normX),
-      targetY = d.target.y - (circleSize * normY);
+      cosTheta = deltaX / dist;
+      sinTheta = deltaY / dist;
+      sourceX = d.source.x + (circleSize * cosTheta);
+      sourceY = d.source.y + (circleSize * sinTheta);
+      targetX = d.target.x - (circleSize * cosTheta),
+      targetY = d.target.y - (circleSize * sinTheta);
 
       return 'M' + sourceX + ' ' + sourceY + ' L' + targetX + ' ' + targetY;
     }
@@ -286,20 +290,24 @@
           submitQuery(d.id);
         })
         .on('click', function(d) {
-          iconLock = d3.select('#control-icon-group').selectAll('path.lockIcon')
+          iconLock = d3.select('#control-icon-group').selectAll('g.lockIcon')
             .data([d], function(d) {return d.id;});
 
           iconLock.exit().remove();
           iconLock.remove();
-          iconLock = iconLock.enter().append('path')
+          var iconLockEnter = iconLock.enter().append('g')
             .attr('class', 'lockIcon')
-            .attr('d', lockIconSVG)
             .attr('transform', transformIconLock)
             .on('click', function(d) {
               d.fx = null;
               d.fy = null;
               iconLock.remove();
-            })
+            });
+
+          iconLockEnter.append('path').attr('class', 'overlay').attr('d', boxSVG);
+          iconLockEnter.append('path').attr('d', lockIconSVG);
+            
+          iconLock = iconLockEnter
             .merge(iconLock);
         })
         .merge(circles);

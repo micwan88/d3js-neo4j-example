@@ -50,10 +50,20 @@ path {
 	stroke: #1B2631;
 }
 
-path.lockIcon {
+g.lockIcon {
 	cursor: pointer;
-	stroke-width: 1px;
-	fill: #1B2631;
+}
+
+g.lockIcon path {
+	stroke: #1B2631;
+	stroke-width: 1.5px;
+}
+
+g.lockIcon path.overlay {
+	fill: white;
+	cursor: pointer;
+	stroke: #1B2631;
+	stroke-width: 3px;
 }
 
 text {
