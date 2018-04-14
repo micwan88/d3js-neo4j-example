@@ -45,12 +45,19 @@ path.OUT_SUB {
 	stroke-dasharray: 5,5;
 }
 
+path.IN_OR {
+	fill: #3498DB;
+	stroke: #3498DB;
+	stroke-width: 1.5px;
+	stroke-dasharray: 5,5;
+}
+
 path {
 	fill: #1B2631;
 	stroke: #1B2631;
 }
 
-g.lockIcon {
+#control-icon-group {
 	cursor: pointer;
 }
 
@@ -59,9 +66,8 @@ g.lockIcon path {
 	stroke-width: 1.5px;
 }
 
-g.lockIcon path.overlay {
+g path.overlay {
 	fill: white;
-	cursor: pointer;
 	stroke: #1B2631;
 	stroke-width: 1px;
 	stroke-dasharray: 2,2;
