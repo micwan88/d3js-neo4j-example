@@ -7,7 +7,7 @@
   <meta name="description" content="A d3js example for neo4j">
   <meta name="author" content="Mic Wan">
 
-  <title>D3js Example for neo4j</title>
+  <title>D3js Example for Neo4j</title>
 
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="css/bootstrap.min.css">
@@ -107,8 +107,8 @@
     }
 
     function drag_start(d) {
-      if (!d3.event.active && d3Simulation != null)
-        d3Simulation.alphaTarget(0.3).restart();
+      //if (!d3.event.active && d3Simulation != null)
+      d3Simulation.alphaTarget(0.3).restart();
       d.fx = d.x;
       d.fy = d.y;
     }
@@ -144,6 +144,8 @@
         .attr('markerWidth', 5)
         .attr('markerHeight', 5)
         .attr('orient', 'auto')
+        .attr('stoke', 'none')
+        .attr('fill', 'black')
         .append('path')
         .attr('d', 'M0,-5L10,0L0,5');
 
@@ -177,22 +179,21 @@
     }
 
     function transform(d) {
-      //console.log(d);
       return 'translate(' + d.x + ',' + d.y + ')';
     }
 
     function drawLine(d) {
-      var deltaX, deltaY, dist, normX, normY, sourceX, sourceY, targetX, targetY;
+      var deltaX, deltaY, dist, cosTheta, sinTheta, sourceX, sourceY, targetX, targetY;
       
       deltaX = d.target.x - d.source.x;
       deltaY = d.target.y - d.source.y;
       dist = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-      normX = deltaX / dist;
-      normY = deltaY / dist;
-      sourceX = d.source.x + (circleSize * normX);
-      sourceY = d.source.y + (circleSize * normY);
-      targetX = d.target.x - (circleSize * normX),
-      targetY = d.target.y - (circleSize * normY);
+      cosTheta = deltaX / dist;
+      sinTheta = deltaY / dist;
+      sourceX = d.source.x + (circleSize * cosTheta);
+      sourceY = d.source.y + (circleSize * sinTheta);
+      targetX = d.target.x - (circleSize * cosTheta),
+      targetY = d.target.y - (circleSize * sinTheta);
 
       return 'M' + sourceX + ' ' + sourceY + ' L' + targetX + ' ' + targetY;
     }
