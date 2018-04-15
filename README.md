@@ -20,7 +20,7 @@ var neo4jLogin = 'neo4j';
 var neo4jPassword = 'password';
 ```
 
-## Styled Example for D3.js + Control-M jobflow model in Neo4j
+## Styled Example for D3.js + Control-M jobflow model in Neo4j (`ctm-query`)
 This is an example to visualize the Control-M jobflow in Neo4j. To try this, you have to load the Control-M job xml into Neo4j via [APOC plugin](https://github.com/neo4j-contrib/neo4j-apoc-procedures) and a series of Cypher queries.
 
 The example of Cypher script can be found in ([here](cypher-example/controlm-model.cypher)).
