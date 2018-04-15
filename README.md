@@ -4,13 +4,11 @@
 
 This is [D3.js v5](https://d3js.org/) example visualize the result from [Neo4j](https://neo4j.com/).
 
-## Examples
-1. General example in D3.js for Neo4j ([query.html](query.html))
-test
-2. D3.js example for Control-M model in Neo4j ([ctm-query.html](ctm-query.html))
-test
+## Page List
+1. General example for D3.js + Neo4j ([query.html](query.html))
+2. Styled example for D3.js + Control-M model in Neo4j ([ctm-query.html](ctm-query.html))
 
-## Prerequisite
+## Pre-requisite
 1. You have to start your the Neo4j server as the example page connect it via HTTP endpoint.
 2. Modify the Neo4j login and password in the example page as below.
 
@@ -21,3 +19,8 @@ var neo4jAPIURL = 'http://localhost:7474/db/data/transaction/commit';
 var neo4jLogin = 'neo4j';
 var neo4jPassword = 'password';
 ```
+
+## Styled Example for D3.js + Control-M jobflow model in Neo4j
+This is an example to visualize the Control-M jobflow in Neo4j. To try this, you have to load the Control-M job xml into Neo4j via [APOC plugin](https://github.com/neo4j-contrib/neo4j-apoc-procedures) and a series of Cypher queries.
+
+The example of Cypher script can be found in ([here](cypher-example/controlm-model.cypher)).
