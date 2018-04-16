@@ -66,6 +66,8 @@
 
     var circleSize = 30;
     var textPosOffsetY = 5;
+    var arrowWidth = 5;
+    var arrowHeight = 5;
 
     var collideForceSize = circleSize * 1.5;
     var linkForceSize = 150;
@@ -144,7 +146,6 @@
 
     function initGraph() {
       var svg = d3.select('#resultSvg');
-      var defs = svg.append('defs');
       var zoomGLayer = svg.append('g');
 
       var centerX = graphWidth / 2;
@@ -153,6 +154,9 @@
       svg.attr('width', graphWidth)
         .attr('height', graphHeight);
 
+      /*
+      var defs = svg.append('defs');
+      Not use marker as IE does not support it and so embed the arrow in the path directly
       // define arrow markers for graph links
       defs.append('marker')
         .attr('id', 'end-arrow')
@@ -161,10 +165,9 @@
         .attr('markerWidth', 5)
         .attr('markerHeight', 5)
         .attr('orient', 'auto')
-        .attr('stoke', 'none')
-        .attr('fill', 'black')
         .append('path')
         .attr('d', 'M0,-5L10,0L0,5');
+      */
 
       zoomGLayer.append('g').attr('id', 'circle-group').attr('transform', 'translate(' + centerX + ',' + centerY + ')');
       zoomGLayer.append('g').attr('id', 'text-group').attr('transform', 'translate(' + centerX + ',' + centerY + ')');
@@ -219,10 +222,20 @@
       sinTheta = deltaY / dist;
       sourceX = d.source.x + (circleSize * cosTheta);
       sourceY = d.source.y + (circleSize * sinTheta);
-      targetX = d.target.x - (circleSize * cosTheta),
+      targetX = d.target.x - (circleSize * cosTheta);
       targetY = d.target.y - (circleSize * sinTheta);
 
-      return 'M' + sourceX + ' ' + sourceY + ' L' + targetX + ' ' + targetY;
+      //Not use marker as IE does not support it and so embed the arrow in the path directly
+      var arrowLeftX, arrowLeftY, arrowRightX, arrowRightY;
+
+      arrowLeftX = targetX - (arrowHeight * sinTheta) - (arrowWidth * cosTheta);
+      arrowLeftY = targetY + (arrowHeight * cosTheta) - (arrowWidth * sinTheta);
+      arrowRightX = targetX + (arrowHeight * sinTheta) - (arrowWidth * cosTheta);
+      arrowRightY = targetY - (arrowHeight * cosTheta) - (arrowWidth * sinTheta);
+
+      return 'M' + sourceX + ' ' + sourceY + ' L' + targetX + ' ' + targetY
+        + ' M' + targetX + ' ' + targetY + ' L' + arrowLeftX + ' ' + arrowLeftY
+        + ' L' + arrowRightX + ' ' + arrowRightY + ' Z';
     }
 
     function clearProperties() {
@@ -365,7 +378,7 @@
 
       lines.exit().remove();
       lines = lines.enter().append('path')
-        .attr('marker-end', 'url(#end-arrow)')
+        //.attr('marker-end', 'url(#end-arrow)')
         .attr('title', function(d) {return d.type;})
         .attr('class', function(d) {return d.type;})
         .on('mouseover', function(d) {
